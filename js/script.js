@@ -20,29 +20,31 @@ var player = {
 };
 
 var ball = {
-    x:player.x + player.width,
-    y: player.y + player.height,
+    x: "",
+    y: "",
     width: 30,
     height: 30,
-    drawMe: function (){
-        ctx.drawImage(ballImage, this.x, this.y - this.height, this.width, this.height);
-    }
+    drawMePosession: function (){
+        ctx.drawImage(ballImage, player.x + player.width, player.y + player.height - this.height, this.width, this.height);
+    },
+    drawMeNoPosession: function (){
+        ctx.drawImage(ballImage, this.x, this.y, this.width, this.height);
+    },
 };
 
 
 var goal = {
     x: canvas.width-10,
-    y: canvas.height/2-80,
-    width: 200,
-    height: 5,
-    drawMe: function(){ctx.fillRect(this.x, this.y, this.height, this.width)}
+    y: canvas.height/3,
+    width: 5,
+    height: canvas.height/3,
+    drawMe: function(){ctx.fillRect(this.x, this.y, this.width, this.height)}
 }
 
 
 
 function ballKick(){
     if(player.hasBall){
-        ball.x += 50;
         player.hasBall = false;
     }
 }
@@ -73,26 +75,33 @@ function collision(objA, objB){
 
 
 function goalDetection(){    
-    if(collision(ball, goal)){
+    if(collision(player, goal)){
         console.log("lololololoolololol")
     }
 }
 
-
-
+function ballPossessionChecker(){
+    if(collision(ball, player)){
+        player.hasBall = true;
+    }
+}
 function updateStuff(){
     // clear old drawings from the entire canvas before drawing again
     ctx.clearRect(0,0, canvas.width, canvas.height);
 
     player.drawMe();
-    
-    ball.drawMe();
     goal.drawMe();
+    ballPossessionChecker();
 
-
-    if(goalDetection()){
-        return;
+    if(player.hasBall){
+        ball.drawMePosession();
+    } else{
+        ball.drawMeNoPosession();
     }
+
+    // if(goalDetection()){
+    //     return;
+    // }
     requestAnimationFrame(function(){
         updateStuff();
     })
@@ -107,28 +116,25 @@ body.onkeydown = function (event){
         case 87:
         case 38:
         player.y -= 8;
-        ball.y -= 8;
         break;
         
         case 65:
         case 37:
         player.x -= 8;
-        ball.x -= 8;
         break;
         
         case 83:
         case 40:
         player.y += 8;
-        ball.y += 8;
         break;
         
         case 68:
         case 39:
         player.x += 8;
-        ball.x += 8;
         break;
 
         case 32:
+        
         ballKick();
         break;
     }
