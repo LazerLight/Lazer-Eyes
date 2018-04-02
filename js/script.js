@@ -1,53 +1,42 @@
-var canvas = document.querySelector('.football-pitch');
+var canvas = document.querySelector('.arena');
 var ctx = canvas.getContext("2d");
 var body = document.querySelector("body");
+var unitlength = canvas.width/10;
 
-var playerImage = new Image();
-playerImage.src = "./images/player.png"
+var sShape=[
+    [1,0,0,0],
+    [1,1,0,0],
+    [0,1,0,0],
+    [0,0,0,0]
+]
 
-var ballImage = new Image();
-ballImage.src = "./images/ball.png"
-
-var player = {
-    x:50,
-    y: 50,
-    width: 82,
-    height: 99,
-    hasBall: true,
-    drawMe: function (){
-        ctx.drawImage(playerImage, this.x, this.y, this.width, this.height);
-    }
-};
-
-var ball = {
-    x: "",
-    y: "",
-    width: 30,
-    height: 30,
-    drawMePosession: function (){
-        ctx.drawImage(ballImage, player.x + player.width, player.y + player.height - this.height, this.width, this.height);
-    },
-    drawMeNoPosession: function (){
-        ctx.drawImage(ballImage, this.x, this.y, this.width, this.height);
-    },
-};
-
-
-var goal = {
-    x: canvas.width-10,
-    y: canvas.height/3,
-    width: 5,
-    height: canvas.height/3,
-    drawMe: function(){ctx.fillRect(this.x, this.y, this.width, this.height)}
+function UnitSquare(x,y) {
+    this.x = x*unitlength;
+    this.y = y*unitlength;
+    this.length= unitlength;
 }
 
+UnitSquare.prototype.drawMe = function(){
+    ctx.strokeRect(this.x,this.y,this.length,this.length)
+}
 
+function Piece() {
+    this.x = 0;
+    this.y = 0;
+    this.shapeArr = sShape;
+}
 
-function ballKick(){
-    if(player.hasBall){
-        player.hasBall = false;
+Piece.prototype.drawMe = function(){
+    for (var i = 0; i < this.shapeArr.length; i++){
+        for (var j = 0; j < this.shapeArr[i].length; j++){
+            if (this.shapeArr[i][j]){
+                var square = new UnitSquare(j+this.x,i+this.y);
+                square.drawMe();
+            }
+        }
     }
 }
+var piece = new Piece()
 
 
 function getTop (obj){
@@ -74,34 +63,13 @@ function collision(objA, objB){
 }
 
 
-function goalDetection(){    
-    if(collision(player, goal)){
-        console.log("lololololoolololol")
-    }
-}
-
-function ballPossessionChecker(){
-    if(collision(ball, player)){
-        player.hasBall = true;
-    }
-}
 function updateStuff(){
     // clear old drawings from the entire canvas before drawing again
     ctx.clearRect(0,0, canvas.width, canvas.height);
+    // piece.y += .01
 
-    player.drawMe();
-    goal.drawMe();
-    ballPossessionChecker();
-
-    if(player.hasBall){
-        ball.drawMePosession();
-    } else{
-        ball.drawMeNoPosession();
-    }
-
-    // if(goalDetection()){
-    //     return;
-    // }
+    piece.drawMe();
+    
     requestAnimationFrame(function(){
         updateStuff();
     })
@@ -115,27 +83,24 @@ body.onkeydown = function (event){
     switch(event.keyCode){
         case 87:
         case 38:
-        player.y -= 8;
+        case 32:
+        // piece.y -= unitlength;
         break;
         
         case 65:
         case 37:
-        player.x -= 8;
+        piece.x -= 1;
         break;
         
         case 83:
         case 40:
-        player.y += 8;
+        piece.y += 1;
         break;
         
         case 68:
         case 39:
-        player.x += 8;
+        piece.x += 1;
         break;
-
-        case 32:
         
-        ballKick();
-        break;
     }
 }
