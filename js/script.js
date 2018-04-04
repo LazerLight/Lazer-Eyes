@@ -2,10 +2,10 @@ var canvas = document.querySelector('.arena');
 var ctx = canvas.getContext("2d");
 var body = document.querySelector("body");
 var unitlength = canvas.width/10;
-var xCurrentPiece = 0;
-var yCurrentPiece = 1;
-var currentPiece =sShape
-
+var xCurrentPiece;
+var yCurrentPiece;
+var currentPiece;
+var bottomReached = false;
 var sShape=[
     [1,0,0,0],
     [1,1,0,0],
@@ -18,60 +18,89 @@ var gameBoard = [
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,1,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0]
 ]
 
 function generatePiece(){
-    var shapeArr;
-    currentPiece = shapeArr;
+    currentPiece = sShape
+    xCurrentPiece = 0;
+    yCurrentPiece = 0;
 }
-generatePiece();
-
-
+generatePiece()
+// function renderBoard(){
+//     for (var y = 0; y < currentPiece.length; y++ ){
+//         for(var x = 0; x < currentPiece[y].length; x++){
+//             if(currentPiece[y][x]){
+//                 ctx.strokeRect((x+xCurrentPiece)*unitlength,(y+yCurrentPiece)*unitlength,unitlength,unitlength)
+//             }
+//         }
+//     }
+//     for (var y = 0; y < gameBoard.length; y++ ){
+//         for(var x = 0; x < gameBoard[y].length; x++){
+//             if(gameBoard[y][x]){
+//                 ctx.strokeRect(x*unitlength,y*unitlength,unitlength,unitlength)
+//             }
+//         }
+//     }
+// }
 
 function renderBoard(){
-    currentPiece =sShape
+    ctx.clearRect( 0, 0, canvas.width, canvas.height );
+    for (var x = 0; x < gameBoard.length; x++ ){
+        for(var y = 0; y < gameBoard[x].length; y++){
+            if(gameBoard[y][x]){
+                ctx.strokeRect(x*unitlength,y*unitlength,unitlength-1,unitlength-1)
+            }
+        }
+    }
+    
     for (var y = 0; y < currentPiece.length; y++ ){
         for(var x = 0; x < currentPiece[y].length; x++){
             if(currentPiece[y][x]){
-                ctx.strokeRect((x+xCurrentPiece)*unitlength,(y+yCurrentPiece)*unitlength,unitlength,unitlength)
-            }
-        }
-    }
-    for (var y = 0; y < gameBoard.length; y++ ){
-        for(var x = 0; x < gameBoard[y].length; x++){
-            if(gameBoard[y][x]){
-                ctx.strokeRect(x*unitlength,y*unitlength,unitlength,unitlength)
+                ctx.strokeRect((x+xCurrentPiece)*unitlength,(y+yCurrentPiece)*unitlength,unitlength-1,unitlength-1)
             }
         }
     }
 }
-    
-
+function setPiece(){
+    for (var y = 0; y < currentPiece.length; y++ ){
+        for(var x = 0; x < currentPiece[y].length; x++){
+            if(currentPiece[y][x]){
+                gameBoard[y+yCurrentPiece][x+xCurrentPiece] = currentPiece[y][x]
+            }
+        }
+    }
+}
 
 function checkLegalMoveDown(){
     for (var y = currentPiece.length-1; y >= 0; y-- ){
         for(var x = currentPiece[y].length-1; x >= 0; x--){
             if(currentPiece[y][x] && gameBoard[y+yCurrentPiece][x+xCurrentPiece]){
-                console.log("Illegal move down")
-                gameBoard[y+yCurrentPiece][x+xCurrentPiece] = currentPiece[y][x];
+                bottomReached = true
             }
         }
+    }
+}   
+
+function checkNextMove(){
+    if (bottomReached){
+        console.log("Should generate new piece")
+        generatePiece();
     }
 }
 
@@ -84,7 +113,7 @@ function checkLegalMoveSides(){
             }
         }
     }
-
+    
     //Left Side
     for (var y = 0; y < currentPiece.length; y++){
         for(var x = 0; x < currentPiece[y].length; x++){
@@ -95,14 +124,12 @@ function checkLegalMoveSides(){
     }
 }
 function updateStuff(){
-    ctx.clearRect(0,0, canvas.width, canvas.height);
-    var currentPiece =sShape
-    renderBoard();
-    checkLegalMoveDown();
-    checkLegalMoveSides();
-    // piece.drawMe();
     
-    // pieceBordersCalculation();
+    renderBoard();
+    if(bottomReached){
+        setPiece();
+        generatePiece()        
+    }
     
     requestAnimationFrame(function(){
         updateStuff();
@@ -116,6 +143,7 @@ body.onkeydown = function (event){
         case 87:
         case 38:
         case 32:
+        checkLegalMoveDown();
         yCurrentPiece -= 1;
         break;
         
@@ -126,6 +154,7 @@ body.onkeydown = function (event){
         
         case 83:
         case 40:
+        checkLegalMoveDown();
         yCurrentPiece += 1;
         break;
         
