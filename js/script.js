@@ -16,8 +16,10 @@ var sShape=[
 ]
 
 var gameBoard = [
-    [0,0,0,0,1,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,1,0,0,0,0,0],
+    [0,0,0,1,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
@@ -74,7 +76,7 @@ function setPiece(){
     for (var y = 0; y < currentPiece.length; y++ ){
         for(var x = 0; x < currentPiece[y].length; x++){
             if(currentPiece[y][x]){
-                gameBoard[y+yCurrentPiece-1][x+xCurrentPiece] = currentPiece[y][x]
+                gameBoard[y+yCurrentPiece][x+xCurrentPiece] = currentPiece[y][x]
             } 
         }
     }
@@ -90,7 +92,7 @@ function checkLegalMoveDown(){
             if(currentPiece[y][x]){
                 nextYPosition = y+yCurrentPiece+1;
                 if ((nextYPosition == gameBoard.length) || (gameBoard[nextYPosition][x+xCurrentPiece])){
-                    console.log("Next move collides at the left")
+                    console.log("Next move collides at the bottom")
                     bottomReached = true
                 }
             } 
@@ -136,20 +138,34 @@ function checkAndReplaceFullLine(){
         }, 0);
         if (gameBoard[y].length == sum){
             gameBoard.splice(y,1)
-            gameBoard.unshift([0,0,0,0,1,0,0,0,0,0])
+            gameBoard.unshift([0,0,0,0,0,0,0,0,0,0])
         }
         
     }
     
 }
+
+function gameOverCheck(){
+    var sumRow1 = gameBoard[0].reduce(function (accumulator, currentValue) {
+        return accumulator + currentValue;
+    }, 0);
+    var sumRow2 = gameBoard[1].reduce(function (accumulator, currentValue) {
+        return accumulator + currentValue;
+    }, 0);
+    if ((sumRow1 > 0) || (sumRow2 > 0)){
+        return true
+    }
+}
 function downwardFlow(){
-    checkLegalMoveDown();
+    updateStuff();
  
-    // yCurrentPiece++    
+    yCurrentPiece++    
 }
 setInterval(function(){downwardFlow()},300);
 function updateStuff(){ 
     renderBoard();
+   
+    checkLegalMoveDown();
     if(bottomReached){
         //If bottom is reached: 
         //1) Piece is set permanently,
@@ -161,6 +177,12 @@ function updateStuff(){
         generatePiece(); 
         bottomReached = false;  
     } 
+    
+    gameOverCheck()
+    if(gameOverCheck()){
+        console.log("You lost")
+        return
+    }
        
     requestAnimationFrame(function(){
         updateStuff();
@@ -187,7 +209,6 @@ body.onkeydown = function (event){
         case 83:
         case 40:
         checkLegalMoveDown();
-
         yCurrentPiece += 1;
         break;
         
