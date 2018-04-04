@@ -6,6 +6,8 @@ var xCurrentPiece;
 var yCurrentPiece;
 var currentPiece;
 var bottomReached = false;
+var sideCoordinates = []
+
 var sShape=[
     [1,0,0,0],
     [1,1,0,0],
@@ -14,10 +16,6 @@ var sShape=[
 ]
 
 var gameBoard = [
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,1,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
@@ -33,7 +31,11 @@ var gameBoard = [
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0]
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [1,1,1,1,1,1,0,0,1,1],
+    [1,1,1,1,1,1,1,0,1,1]
 ]
 
 function generatePiece(){
@@ -41,68 +43,55 @@ function generatePiece(){
     xCurrentPiece = 0;
     yCurrentPiece = 0;
 }
-generatePiece()
-// function renderBoard(){
-//     for (var y = 0; y < currentPiece.length; y++ ){
-//         for(var x = 0; x < currentPiece[y].length; x++){
-//             if(currentPiece[y][x]){
-//                 ctx.strokeRect((x+xCurrentPiece)*unitlength,(y+yCurrentPiece)*unitlength,unitlength,unitlength)
-//             }
-//         }
-//     }
-//     for (var y = 0; y < gameBoard.length; y++ ){
-//         for(var x = 0; x < gameBoard[y].length; x++){
-//             if(gameBoard[y][x]){
-//                 ctx.strokeRect(x*unitlength,y*unitlength,unitlength,unitlength)
-//             }
-//         }
-//     }
-// }
+
+generatePiece();
 
 function renderBoard(){
     ctx.clearRect( 0, 0, canvas.width, canvas.height );
-    for (var x = 0; x < gameBoard.length; x++ ){
-        for(var y = 0; y < gameBoard[x].length; y++){
-            if(gameBoard[y][x]){
-                ctx.strokeRect(x*unitlength,y*unitlength,unitlength-1,unitlength-1)
-            }
-        }
-    }
     
     for (var y = 0; y < currentPiece.length; y++ ){
         for(var x = 0; x < currentPiece[y].length; x++){
             if(currentPiece[y][x]){
-                ctx.strokeRect((x+xCurrentPiece)*unitlength,(y+yCurrentPiece)*unitlength,unitlength-1,unitlength-1)
+                ctx.strokeRect((x+xCurrentPiece)*unitlength,(y+yCurrentPiece)*unitlength,unitlength,unitlength)
             }
         }
     }
+    for (var y = 0; y < gameBoard.length; y++ ){
+        for(var x = 0; x < gameBoard[y].length; x++){
+            if(gameBoard[y][x]){
+                ctx.strokeRect(x*unitlength,y*unitlength,unitlength,unitlength)
+            }
+        }
+    }
+    
 }
+
 function setPiece(){
     for (var y = 0; y < currentPiece.length; y++ ){
         for(var x = 0; x < currentPiece[y].length; x++){
             if(currentPiece[y][x]){
-                gameBoard[y+yCurrentPiece][x+xCurrentPiece] = currentPiece[y][x]
-            }
+                gameBoard[y+yCurrentPiece-1][x+xCurrentPiece] = currentPiece[y][x]
+            } 
         }
     }
 }
 
+//
 function checkLegalMoveDown(){
+    var nextMoveDownOccupiedorOffBoard
     for (var y = currentPiece.length-1; y >= 0; y-- ){
         for(var x = currentPiece[y].length-1; x >= 0; x--){
-            if(currentPiece[y][x] && gameBoard[y+yCurrentPiece][x+xCurrentPiece]){
-                bottomReached = true
-            }
+            if(currentPiece[y][x]){
+                nextMoveDown = gameBoard[yCurrentPiece+1][x+xCurrentPiece]
+                if ((nextMoveDown == undefined) || (nextMoveDown == 1)){
+                    console.log("At the bottom")
+                    bottomReached = true
+                }
+            } 
         }
     }
-}   
-
-function checkNextMove(){
-    if (bottomReached){
-        console.log("Should generate new piece")
-        generatePiece();
-    }
 }
+
 
 function checkLegalMoveSides(){
     //Right Side
@@ -123,12 +112,29 @@ function checkLegalMoveSides(){
         }
     }
 }
-function updateStuff(){
+
+function checkFullLine(){
+    for(var y = 0; y < gameBoard.length; y++){
+        var row = gameBoard[y]
+        var sum = gameBoard[y].reduce(function (accumulator, currentValue) {
+            return accumulator + currentValue;
+        }, 0);
+        if (gameBoard[y].length == sum){
+            gameBoard.splice(y,1)
+            gameBoard.unshift([0,0,0,0,1,0,0,0,0,0])
+        }
+        
+    }
     
+}
+function updateStuff(){
     renderBoard();
+    checkLegalMoveDown()
     if(bottomReached){
         setPiece();
-        generatePiece()        
+        checkFullLine();
+        generatePiece(); 
+        bottomReached = false;  
     }
     
     requestAnimationFrame(function(){
@@ -143,7 +149,7 @@ body.onkeydown = function (event){
         case 87:
         case 38:
         case 32:
-        checkLegalMoveDown();
+        // checkLegalMoveDown();
         yCurrentPiece -= 1;
         break;
         
