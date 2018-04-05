@@ -3,13 +3,28 @@ canvas {
     padding: 0;
     margin: auto;
     display: block;
+    overflow: auto;
 }
 body{
-    background: #c9c9ff
+    background: #9494ce
 }
 
 header {
+    float: right;
     text-align: center;
     color: #ffbdbd;
-    font-weight: 900
+    font-weight: 900;
+    margin-right: 15%;
+    margin-top: 25%;
+}
+h1 {
+    font-size: 50px;
+}
+.cloud {
+    width: 500px;
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    margin-bottom: -150px;
+
 }

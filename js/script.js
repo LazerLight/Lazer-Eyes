@@ -1,6 +1,7 @@
 var canvas = document.querySelector('.arena');
 var ctx = canvas.getContext("2d");
 var body = document.querySelector("body");
+var linesSelector = document.querySelector('.linesCompleted');
 var unitlength = canvas.width/10;
 var xCurrentPiece;
 var yCurrentPiece;
@@ -9,6 +10,25 @@ var bottomReached = false;
 var collisionRight = false;
 var collisionLeft = false;
 var collisionRotation = false;
+var linesCompleted = 0;
+
+
+var cloudImage = new Image();
+cloudImage.src = "./images/cloud.png";
+
+var cloud = {
+    x: 80,
+    y:-20,
+    width: 210,
+    height: 150,
+    drawMe: function (){
+        ctx.drawImage(cloudImage, this.x,this.y, this.width, this.height);
+    }
+};
+
+
+
+
 
 var sShape=[
     [1,0,0,0],
@@ -36,8 +56,8 @@ var sShape=[
 var gameBoard = [
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,1,0,0,0,0,0],
-    [0,0,0,1,0,0,0,0,0,0],
+    [1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
@@ -66,7 +86,7 @@ function randomPiecePicker(){
 function generatePiece(){
     //Generates a new piece, resets the position coordinates to 0
     currentPiece = shapeObject[randomPiecePicker()]
-    xCurrentPiece = 5;
+    xCurrentPiece = 4;
     yCurrentPiece = 0;
 }
 
@@ -204,6 +224,8 @@ function checkAndReplaceFullLine(){
             return accumulator + currentValue;
         }, 0);
         if (gameBoard[y].length == sum){
+            linesCompleted++;
+            linesSelector.innerHTML = "Current lines completed: " + linesCompleted;
             gameBoard.splice(y,1)
             gameBoard.unshift([0,0,0,0,0,0,0,0,0,0])
         }
@@ -230,7 +252,10 @@ function downwardFlow(){
 }
 setInterval(function(){downwardFlow()},300);
 function updateStuff(){ 
+    
+    cloud.drawMe();
     renderBoard();
+    cloud.drawMe();
     checkLegalMoveDown();
     if(bottomReached){
         //If bottom is reached: 
