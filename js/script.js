@@ -88,7 +88,9 @@ function renderBoard(){
     for (var y = 0; y < gameBoard.length; y++ ){
         for(var x = 0; x < gameBoard[y].length; x++){
             if(gameBoard[y][x]){
-                ctx.strokeRect(x*unitlength,y*unitlength,unitlength,unitlength)
+                
+                ctx.fillRect(x*unitlength,y*unitlength,unitlength,unitlength)
+                ctx.fillStyle = "#ffbdbd"
             }
         }
     }
