@@ -10,11 +10,21 @@ var bottomReached = false;
 
 var sShape=[
     [1,0,0,0],
-    [1,1,0,0],
-    [0,1,0,0],
-    [0,0,0,0]
+    [1,0,0,0],
+    [1,0,0,0],
+    [1,0,0,0]
 ]
-
+var shapeObject = {
+    sShape: [[1,0,0],[1,1,0],[0,1,0]],
+    zShape: [[0,1,0],[1,1,0],[1,0,0]],
+    lShape: [[1,0,0],[1,0,0],[1,1,0]],
+    bkwdlShape: [[0,1,0],[0,1,0],[1,1,0]],
+    squareShape: [[1,1,0],[1,1,0]],
+    lineShape: [[1],[1],[1],[1]],
+    underlineShape: [[0,0,0,0],[0,0,0,0],[0,0,0,0],[1,1,1,1]],
+}
+// var shapeSelection = [sShape, zShape,lShape,bkwdlShape,squareShape,lineShape]
+// var shapeSelection = ["sShape", "zShape","lShape","bkwdlShape","squareShape","lineShape"]
 var gameBoard = [
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
@@ -42,8 +52,8 @@ var gameBoard = [
 
 function generatePiece(){
     //Generates a new piece, resets the position coordinates to 0
-    currentPiece = sShape
-    xCurrentPiece = 0;
+    currentPiece = shapeObject.lineShape
+    xCurrentPiece = 5;
     yCurrentPiece = 0;
 }
 
@@ -51,6 +61,7 @@ generatePiece();
 
 function renderBoard(){
     ctx.clearRect( 0, 0, canvas.width, canvas.height );
+    
     //Renders the current piece, using the piece array
     for (var y = 0; y < currentPiece.length; y++ ){
         for(var x = 0; x < currentPiece[y].length; x++){
@@ -70,6 +81,29 @@ function renderBoard(){
     }
     
 }
+
+function rotate() {
+    if(currentPiece === shapeObject.lineShape){
+        console.log("underline")
+        currentPiece = shapeObject.underlineShape
+        return
+    } else if (currentPiece === shapeObject.underlineShape){
+        console.log("line")
+        currentPiece = shapeObject.lineShape
+        return
+    }
+
+    currentPiece = currentPiece.reverse();
+    
+    for (var i = 0; i < currentPiece.length; i++) {
+        for (var j = 0; j < i; j++) {
+            var temp = currentPiece[i][j];
+            currentPiece[i][j] = currentPiece[j][i];
+            currentPiece[j][i] = temp;
+        }
+    }
+    
+};
 
 function setPiece(){
     //Sets the piece in the current position and updates the board array with that information
@@ -158,13 +192,13 @@ function gameOverCheck(){
 }
 function downwardFlow(){
     updateStuff();
- 
+    
     yCurrentPiece++    
 }
 setInterval(function(){downwardFlow()},300);
 function updateStuff(){ 
     renderBoard();
-   
+    
     checkLegalMoveDown();
     if(bottomReached){
         //If bottom is reached: 
@@ -178,12 +212,13 @@ function updateStuff(){
         bottomReached = false;  
     } 
     
-    gameOverCheck()
+    // gameOverCheck()
     if(gameOverCheck()){
-        console.log("You lost")
+        console.log("game over")
+        ctx.fillRect(0,0,canvas.width, canvas.height)
         return
     }
-       
+    
     requestAnimationFrame(function(){
         updateStuff();
     })
@@ -198,7 +233,8 @@ body.onkeydown = function (event){
         case 38:
         case 32:
         checkLegalMoveDown();
-        yCurrentPiece -= 1;
+        rotate();
+        // yCurrentPiece -= 1;
         break;
         
         case 65:
