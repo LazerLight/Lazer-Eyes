@@ -1,3 +1,15 @@
 canvas {
     border: 5px dashed peachpuff;
+    padding: 0;
+    margin: auto;
+    display: block;
+}
+body{
+    background: lightblue
+}
+
+header {
+    text-align: center;
+    color: palegreen;
+    font-weight: 900
 }

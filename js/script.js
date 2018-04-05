@@ -6,7 +6,9 @@ var xCurrentPiece;
 var yCurrentPiece;
 var currentPiece;
 var bottomReached = false;
-
+var collisionRight = false;
+var collisionLeft = false;
+var collisionRotation = false;
 
 var sShape=[
     [1,0,0,0],
@@ -23,8 +25,14 @@ var shapeObject = {
     lineShape: [[1],[1],[1],[1]],
     underlineShape: [[0,0,0,0],[0,0,0,0],[0,0,0,0],[1,1,1,1]],
 }
-// var shapeSelection = [sShape, zShape,lShape,bkwdlShape,squareShape,lineShape]
-// var shapeSelection = ["sShape", "zShape","lShape","bkwdlShape","squareShape","lineShape"]
+var shapeNames = ["sShape", "zShape","lShape","bkwdlShape","squareShape","lineShape"]
+
+
+var sShape=[
+    [1,0,0],
+    [1,1,0],
+    [0,1,0],
+]
 var gameBoard = [
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
@@ -50,9 +58,14 @@ var gameBoard = [
     [1,1,1,1,1,1,1,0,1,1]
 ]
 
+function randomPiecePicker(){
+    var randomNumber = Math.floor((Math.random() * (shapeNames.length)));
+    return shapeNames[randomNumber]
+}
+
 function generatePiece(){
     //Generates a new piece, resets the position coordinates to 0
-    currentPiece = shapeObject.lineShape
+    currentPiece = shapeObject[randomPiecePicker()]
     xCurrentPiece = 5;
     yCurrentPiece = 0;
 }
@@ -82,41 +95,46 @@ function renderBoard(){
     
 }
 
-function rotate() {
-    if(currentPiece === shapeObject.lineShape){
-        console.log("underline")
-        currentPiece = shapeObject.underlineShape
-        return
-    } else if (currentPiece === shapeObject.underlineShape){
-        console.log("line")
-        currentPiece = shapeObject.lineShape
-        return
-    }
 
-    currentPiece = currentPiece.reverse();
+function rotatePieceArr() {
+    var newRotatedPiece = currentPiece
+    if(currentPiece === shapeObject.lineShape){
+        newRotatedPiece = shapeObject.underlineShape
+        return  newRotatedPiece
+    } else if (currentPiece === shapeObject.underlineShape){
+        newRotatedPiece = shapeObject.lineShape
+        return newRotatedPiece
+    }
+    newRotatedPiece.reverse();
     
     for (var i = 0; i < currentPiece.length; i++) {
         for (var j = 0; j < i; j++) {
-            var temp = currentPiece[i][j];
-            currentPiece[i][j] = currentPiece[j][i];
-            currentPiece[j][i] = temp;
+            var temp = newRotatedPiece[i][j];
+            newRotatedPiece[i][j] = newRotatedPiece[j][i];
+            newRotatedPiece[j][i] = temp;
         }
     }
-    
+    return newRotatedPiece
 };
 
-function setPiece(){
-    //Sets the piece in the current position and updates the board array with that information
-    for (var y = 0; y < currentPiece.length; y++ ){
-        for(var x = 0; x < currentPiece[y].length; x++){
-            if(currentPiece[y][x]){
-                gameBoard[y+yCurrentPiece][x+xCurrentPiece] = currentPiece[y][x]
-            } 
-        }
-    }
+function rotate(){
+    currentPiece = rotatePieceArr();
 }
 
-//
+
+// function checkLegalRotation(){
+//     var theoreticalRotatedPiece = rotatePieceArr();
+    
+//     for (var y = 0; y < currentPiece.length; y++){
+//         for(var x = 0; x < currentPiece[y].length; x++){
+//             if(theoreticalRotatedPiece[y][x] && gameBoard[y+yCurrentPiece][x+xCurrentPiece]){
+//                 console.log("rotate into a piece")
+//                 collisionRotation = true;
+//             }
+//         }
+//     }
+    
+// }
 function checkLegalMoveDown(){
     //Using the piece array, determines if the next movement downward will be off the bottom of the board
     //or into a existing piece. If it is, the bottom has been reached.
@@ -134,6 +152,17 @@ function checkLegalMoveDown(){
     }
 }
 
+function setPiece(){
+    //Sets the piece in the current position and updates the board array with that information
+    for (var y = 0; y < currentPiece.length; y++ ){
+        for(var x = 0; x < currentPiece[y].length; x++){
+            if(currentPiece[y][x]){
+                gameBoard[y+yCurrentPiece][x+xCurrentPiece] = currentPiece[y][x]
+            } 
+        }
+    }
+}
+
 
 function checkLegalMoveSides(){
     var nextXPosition;
@@ -143,7 +172,8 @@ function checkLegalMoveSides(){
             if(currentPiece[y][x]){
                 nextXPosition = x+xCurrentPiece+1
                 if ((nextXPosition >= gameBoard[y].length)|| (gameBoard[y+yCurrentPiece][nextXPosition])){
-                    console.log("Next move collides at the right")
+                    console.log("Next move collides at the right");
+                    collisionRight = true;
                 }
             }
         }
@@ -156,6 +186,7 @@ function checkLegalMoveSides(){
                 nextXPosition = x+xCurrentPiece-1
                 if ((nextXPosition < 0)|| (gameBoard[y+yCurrentPiece][nextXPosition])){
                     console.log("Next move collides at the left")
+                    collisionLeft = true;
                 }
             }
         }
@@ -198,7 +229,6 @@ function downwardFlow(){
 setInterval(function(){downwardFlow()},300);
 function updateStuff(){ 
     renderBoard();
-    
     checkLegalMoveDown();
     if(bottomReached){
         //If bottom is reached: 
@@ -229,12 +259,15 @@ updateStuff();
 
 body.onkeydown = function (event){
     switch(event.keyCode){
-        case 87:
-        case 38:
         case 32:
-        checkLegalMoveDown();
+        // checkLegalRotation();
         rotate();
-        // yCurrentPiece -= 1;
+        break;
+        
+        case 38:
+        case 87:
+        checkLegalMoveDown();
+        yCurrentPiece -= 1;
         break;
         
         case 65:
