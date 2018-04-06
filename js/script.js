@@ -2,6 +2,7 @@ var canvas = document.querySelector('.arena');
 var ctx = canvas.getContext("2d");
 var body = document.querySelector("body");
 var linesSelector = document.querySelector('.linesCompleted');
+var startButton = document.querySelector('.start');
 var unitlength = canvas.width/10;
 var xCurrentPiece;
 var yCurrentPiece;
@@ -13,29 +14,6 @@ var collisionRotation = false;
 var linesCompleted = 0;
 
 
-var cloudImage = new Image();
-cloudImage.src = "./images/cloud.png";
-
-var cloud = {
-    x: 80,
-    y:-20,
-    width: 210,
-    height: 150,
-    drawMe: function (){
-        ctx.drawImage(cloudImage, this.x,this.y, this.width, this.height);
-    }
-};
-
-
-
-
-
-var sShape=[
-    [1,0,0,0],
-    [1,0,0,0],
-    [1,0,0,0],
-    [1,0,0,0]
-]
 var shapeObject = {
     sShape: [[1,0,0],[1,1,0],[0,1,0]],
     zShape: [[0,1,0],[1,1,0],[1,0,0]],
@@ -47,12 +25,6 @@ var shapeObject = {
 }
 var shapeNames = ["sShape", "zShape","lShape","bkwdlShape","squareShape","lineShape"]
 
-
-var sShape=[
-    [1,0,0],
-    [1,1,0],
-    [0,1,0],
-]
 var gameBoard = [
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
@@ -71,9 +43,9 @@ var gameBoard = [
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,1,1,0,0,0,0,0],
+    [0,0,0,0,1,0,0,0,0,0],
+    [0,0,0,0,1,0,0,0,0,0],
     [1,1,1,1,1,1,0,0,1,1],
     [1,1,1,1,1,1,1,0,1,1]
 ]
@@ -91,31 +63,6 @@ function generatePiece(){
 }
 
 generatePiece();
-
-function renderBoard(){
-    ctx.clearRect( 0, 0, canvas.width, canvas.height );
-    
-    //Renders the current piece, using the piece array
-    for (var y = 0; y < currentPiece.length; y++ ){
-        for(var x = 0; x < currentPiece[y].length; x++){
-            if(currentPiece[y][x]){
-                ctx.strokeRect((x+xCurrentPiece)*unitlength,(y+yCurrentPiece)*unitlength,unitlength,unitlength)
-            }
-        }
-    }
-    
-    //Renders the board, using the Board Array
-    for (var y = 0; y < gameBoard.length; y++ ){
-        for(var x = 0; x < gameBoard[y].length; x++){
-            if(gameBoard[y][x]){
-                
-                ctx.fillRect(x*unitlength,y*unitlength,unitlength,unitlength)
-                ctx.fillStyle = "#ffbdbd"
-            }
-        }
-    }
-    
-}
 
 
 function rotatePieceArr() {
@@ -164,9 +111,10 @@ function checkLegalMoveDown(){
     for (var y = currentPiece.length-1; y >= 0; y-- ){
         for(var x = currentPiece[y].length-1; x >= 0; x--){
             if(currentPiece[y][x]){
-                nextYPosition = y+yCurrentPiece+1;
+                nextYPosition = y+yCurrentPiece;
                 if ((nextYPosition == gameBoard.length) || (gameBoard[nextYPosition][x+xCurrentPiece])){
-                    console.log("Next move collides at the bottom")
+                    // console.log("Next move collides at the bottom")
+                    yCurrentPiece--
                     bottomReached = true
                 }
             } 
@@ -189,27 +137,31 @@ function setPiece(){
 function checkLegalMoveSides(){
     var nextXPosition;
     //Right Side
+    collisionRight = false;
     for (var y = 0; y < currentPiece.length; y++){
         for(var x = 0; x < currentPiece[y].length; x++){
             if(currentPiece[y][x]){
                 nextXPosition = x+xCurrentPiece+1
                 if ((nextXPosition >= gameBoard[y].length)|| (gameBoard[y+yCurrentPiece][nextXPosition])){
-                    console.log("Next move collides at the right");
+                    // console.log("Next move collides at the right");
                     collisionRight = true;
                 }
+
             }
         }
     }
     
     //Left Side
+    collisionLeft = false;
     for (var y = 0; y < currentPiece.length; y++){
         for(var x = currentPiece[y].length; x >= 0; x--){
             if(currentPiece[y][x]){
                 nextXPosition = x+xCurrentPiece-1
                 if ((nextXPosition < 0)|| (gameBoard[y+yCurrentPiece][nextXPosition])){
-                    console.log("Next move collides at the left")
+                    // console.log("Next move collides at the left")
                     collisionLeft = true;
                 }
+
             }
         }
     }
@@ -245,73 +197,38 @@ function gameOverCheck(){
         return true
     }
 }
-function downwardFlow(){
-    updateStuff();
-    
-    yCurrentPiece++    
-}
-setInterval(function(){downwardFlow()},300);
-function updateStuff(){ 
-    
-    cloud.drawMe();
-    renderBoard();
-    cloud.drawMe();
-    checkLegalMoveDown();
-    if(bottomReached){
-        //If bottom is reached: 
-        //1) Piece is set permanently,
-        //2) Lines are checked if the full, replaced if so
-        //3) New piece is generated
-        //4)Global bottomReached variable is reset to false
-        setPiece();
-        checkAndReplaceFullLine();
-        generatePiece(); 
-        bottomReached = false;  
-    } 
-    
-    // gameOverCheck()
-    if(gameOverCheck()){
-        console.log("game over")
-        ctx.fillRect(0,0,canvas.width, canvas.height)
-        return
-    }
-    
-    requestAnimationFrame(function(){
-        updateStuff();
-    })
-}
-
-updateStuff();
 
 
 body.onkeydown = function (event){
     switch(event.keyCode){
         case 32:
+        case 38:
+        case 87:
         // checkLegalRotation();
         rotate();
         break;
-        
-        case 38:
-        case 87:
-        checkLegalMoveDown();
-        yCurrentPiece -= 1;
+                
+
+        case 83:
+        case 40:
+        yCurrentPiece += 1;
         break;
         
         case 65:
         case 37:
+        if(!collisionLeft){
         xCurrentPiece -= 1;
-        break;
-        
-        case 83:
-        case 40:
-        checkLegalMoveDown();
-        yCurrentPiece += 1;
+    }
         break;
         
         case 68:
         case 39:
-        xCurrentPiece += 1;
+        if(!collisionRight){
+            xCurrentPiece += 1;
+        }
+
         break;
         
     }
 }
+
