@@ -8,15 +8,19 @@
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-    <header><h1>Threetrees</h1>
+    <div class="game">
+        <img class="cloud" src="./images/cloud.png">
+        
+        <canvas class="arena" width="400" height="880">
+            
+        </canvas>
+    </div>
+    <div class="header"><img src="./images/logo.png">
         <h2 class="linesCompleted">Current lines completed: 0</h2>
         <h2> Current Score: </h2>
-    </header>
-    <img class="cloud" src="./images/cloud.png">
-    
-    <canvas class="arena" width="400" height="880">
-</canvas>
+    </div>
     
     <script src="./js/script.js"></script>
+    <script src="./js/rendering.js"></script>
 </body>
 </html>

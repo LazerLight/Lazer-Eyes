@@ -1,21 +1,20 @@
 canvas {
-    border: 5px dashed #f1cbff;
+    border: 5px dotted white;
     padding: 0;
     margin: auto;
     display: block;
-    overflow: auto;
 }
 body{
-    background: #9494ce
+    background: #9494ce;
+    text-align: center;
 }
 
-header {
-    float: right;
+.header {
     text-align: center;
     color: #ffbdbd;
-    font-weight: 900;
-    margin-right: 15%;
-    margin-top: 25%;
+    display: inline-block;
+    position: absolute;
+    padding: 20% 5%;
 }
 h1 {
     font-size: 50px;
@@ -27,4 +26,7 @@ h1 {
     position: relative;
     margin-bottom: -150px;
 
+}
+.game{
+    display: inline-block
 }
