@@ -35,7 +35,7 @@ function updateStuff(){
     }
     
     renderBoard();
-    checkLegalMoveSides();
+
     checkLegalMoveDown();
     gameOverCheck();
     if(bottomReached){
@@ -50,7 +50,7 @@ function updateStuff(){
         bottomReached = false;
         return 
     } 
-
+    checkLegalMoveSides();
     requestAnimationFrame(function(){
         updateStuff();
     })
