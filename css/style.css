@@ -1,5 +1,5 @@
 canvas {
-    border: 5px dotted white;
+    border: 10px dotted #7deeea;
     padding: 0;
     margin: auto;
     display: block;
@@ -14,7 +14,7 @@ body{
     color: #ffbdbd;
     display: inline-block;
     position: absolute;
-    padding: 20% 5%;
+    padding: 15% 5%;
 }
 h1 {
     font-size: 50px;

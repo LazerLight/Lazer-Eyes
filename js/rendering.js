@@ -29,11 +29,15 @@ function renderBoard(){
 
 
 function updateStuff(){ 
+    canvas.focus()
     if(!gameStart){
         return
     }
+    
     renderBoard();
-
+    checkLegalMoveSides();
+    checkLegalMoveDown();
+    gameOverCheck();
     if(bottomReached){
         //If bottom is reached: 
         //1) Piece is set permanently,
@@ -43,18 +47,10 @@ function updateStuff(){
         setPiece();
         checkAndReplaceFullLine();
         generatePiece(); 
-        bottomReached = false;  
+        bottomReached = false;
+        return 
     } 
-    
-    // gameOverCheck()
-    if(gameOverCheck()){
-        console.log("game over")
-        ctx.fillRect(0,0,canvas.width, canvas.height)
-        return
-    }
-    checkLegalMoveDown();
-    checkLegalMoveSides();
-    
+
     requestAnimationFrame(function(){
         updateStuff();
     })
@@ -70,10 +66,10 @@ function downwardFlow(){
 setInterval(function(){downwardFlow()},300);
 
 startButton.onclick = function(){
-    if (gameStart = true){
-        return
-    }
-    console.log("game started")
+    startButton.blur();
+    startButton.disabled = true;
+    startButton.innerHTML = "Game In Progress";
+    
     gameStart = true;
     generatePiece();
     updateStuff();

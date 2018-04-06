@@ -43,9 +43,9 @@ var gameBoard = [
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,1,1,0,0,0,0,0],
-    [0,0,0,0,1,0,0,0,0,0],
-    [0,0,0,0,1,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
     [1,1,1,1,1,1,0,0,1,1],
     [1,1,1,1,1,1,1,0,1,1]
 ]
@@ -65,8 +65,8 @@ function generatePiece(){
 generatePiece();
 
 
-function rotatePieceArr() {
-    var newRotatedPiece = currentPiece
+function rotatePieceArr(pieceArr) {
+    var newRotatedPiece = Array.from(pieceArr)
     if(currentPiece === shapeObject.lineShape){
         newRotatedPiece = shapeObject.underlineShape
         return  newRotatedPiece
@@ -75,8 +75,7 @@ function rotatePieceArr() {
         return newRotatedPiece
     }
     newRotatedPiece.reverse();
-    
-    for (var i = 0; i < currentPiece.length; i++) {
+    for (var i = 0; i < newRotatedPiece.length; i++) {
         for (var j = 0; j < i; j++) {
             var temp = newRotatedPiece[i][j];
             newRotatedPiece[i][j] = newRotatedPiece[j][i];
@@ -87,35 +86,39 @@ function rotatePieceArr() {
 };
 
 function rotate(){
-    currentPiece = rotatePieceArr();
+    currentPiece = rotatePieceArr(currentPiece);
 }
 
 
+
 // function checkLegalRotation(){
-//     var theoreticalRotatedPiece = rotatePieceArr();
-    
+//     var theoreticalRotatedPiece = Array.from(currentPiece);
+//     theoreticalRotatedPiece = rotatePieceArr(currentPiece)
 //     for (var y = 0; y < currentPiece.length; y++){
 //         for(var x = 0; x < currentPiece[y].length; x++){
-//             if(theoreticalRotatedPiece[y][x] && gameBoard[y+yCurrentPiece][x+xCurrentPiece]){
-//                 console.log("rotate into a piece")
-//                 collisionRotation = true;
+//             if(theoreticalRotatedPiece[y][x]){
+//                 if(gameBoard[y+yCurrentPiece][x+xCurrentPiece]){
+//                     console.log("rotate into a piece")
+//                     collisionRotation = true;
+//                     return
+//                 } 
+                
 //             }
 //         }
 //     }
-    
+//     console.log(currentPiece)
 // }
 function checkLegalMoveDown(){
     //Using the piece array, determines if the next movement downward will be off the bottom of the board
     //or into a existing piece. If it is, the bottom has been reached.
-    var nextYPosition
     for (var y = currentPiece.length-1; y >= 0; y-- ){
         for(var x = currentPiece[y].length-1; x >= 0; x--){
             if(currentPiece[y][x]){
-                nextYPosition = y+yCurrentPiece;
-                if ((nextYPosition == gameBoard.length) || (gameBoard[nextYPosition][x+xCurrentPiece])){
+                if ((y+yCurrentPiece == gameBoard.length) || (gameBoard[y+yCurrentPiece][x+xCurrentPiece])){
                     // console.log("Next move collides at the bottom")
                     yCurrentPiece--
                     bottomReached = true
+                    return
                 }
             } 
         }
@@ -133,7 +136,6 @@ function setPiece(){
     }
 }
 
-
 function checkLegalMoveSides(){
     var nextXPosition;
     //Right Side
@@ -145,8 +147,9 @@ function checkLegalMoveSides(){
                 if ((nextXPosition >= gameBoard[y].length)|| (gameBoard[y+yCurrentPiece][nextXPosition])){
                     // console.log("Next move collides at the right");
                     collisionRight = true;
+                    return
                 }
-
+                
             }
         }
     }
@@ -160,8 +163,9 @@ function checkLegalMoveSides(){
                 if ((nextXPosition < 0)|| (gameBoard[y+yCurrentPiece][nextXPosition])){
                     // console.log("Next move collides at the left")
                     collisionLeft = true;
+                    return
                 }
-
+                
             }
         }
     }
@@ -193,8 +197,18 @@ function gameOverCheck(){
     var sumRow2 = gameBoard[1].reduce(function (accumulator, currentValue) {
         return accumulator + currentValue;
     }, 0);
-    if ((sumRow1 > 0) || (sumRow2 > 0)){
-        return true
+    if ((sumRow1 > 0) || (sumRow2 > 0 || yCurrentPiece < 0)){
+        var header = document.querySelector('.header');
+        header.style.display = "block";
+        header.style.position = "relative";
+        console.log("game over")
+        startButton.disabled = true;
+        startButton.innerHTML = "Game Over"
+        
+        canvas.parentNode.removeChild(canvas);
+        
+        
+        
     }
 }
 
@@ -207,8 +221,8 @@ body.onkeydown = function (event){
         // checkLegalRotation();
         rotate();
         break;
-                
-
+        
+        
         case 83:
         case 40:
         yCurrentPiece += 1;
@@ -217,8 +231,8 @@ body.onkeydown = function (event){
         case 65:
         case 37:
         if(!collisionLeft){
-        xCurrentPiece -= 1;
-    }
+            xCurrentPiece -= 1;
+        }
         break;
         
         case 68:
@@ -226,7 +240,7 @@ body.onkeydown = function (event){
         if(!collisionRight){
             xCurrentPiece += 1;
         }
-
+        
         break;
         
     }
